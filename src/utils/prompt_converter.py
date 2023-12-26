@@ -2,44 +2,20 @@ import json
 
 import requests
 
+from utils.prompts.calm2 import single_turn, multi_turn
 
-def to_calm2(user_msg):
-    return f"USER: {user_msg}\nASSISTANT: "
 
-def to_wizardcoder(user_msg):
-    return f"Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{user_msg}\n\n### Response:"
-
-def to_llama2(user_msg):
-    return f"[INST] <<SYS>>\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information.\n<</SYS>>\n\n{user_msg} [/INST]"
-
-def to_openchat3_5(user_msg):
-    return f"GPT4 Correct User: Hello<|end_of_turn|>GPT4 Correct Assistant: Hi. I'm Rosa.<|end_of_turn|>GPT4 Correct User: {user_msg}<|end_of_turn|>GPT4 Correct Assistant:"
-
-def to_Xwin_LM(user_msg):
-    return f"A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. USER: {user_msg} ASSISTANT: "
-
-def to_v1olet_marcoroni(user_msg):
-    return f"template_format = Below is an instruction that describes a task. Write a response that appropriately completes the request.\n### Instruction:\n{user_msg}\n\n### Response:\n"
-
-def to_stablelm_4e1t(user_msg):
-    if "|" in user_msg:
-        user_msg, input = user_msg.split("|", 1)
-    else:
-        input = None
-
-    sep="\n\n### "
-
-    sys_msg = "以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。"
-    p = sys_msg
-    roles = ["指示", "応答"]
-    msgs = [": \n" + user_msg, ": \n"]
-    if input:
-        roles.insert(1, "入力")
-        msgs.insert(1, ": \n" + input)
-    for role, msg in zip(roles, msgs):
-        p += sep + role + msg
+def convert_prompt(message, model_info, mode):
+    prompt_template = model_info["prompt_format"]
     
-    return p
+    if prompt_template == "calm2":
+        if mode == "Instruction (Single-turn)":
+            prompt = single_turn(message)
+        else:
+            prompt = multi_turn(message)
+    
+    return prompt
+
 
 def to_swallow(user_msg):
     if "|" in user_msg:

@@ -1,18 +1,17 @@
-class Calm2:
-    def single_turn(message):
-        prompt = f"USER: {message}\nASSISTANT: "
+def single_turn(message):
+    prompt = f"USER: {message}\nASSISTANT: "
 
-        return prompt
-    
-    def multi_turn(message_log):
-        prompt = ""
+    return prompt
 
-        for message in message_log:
-            if message["name"] == "user":
-                prompt += f"USER: {message['msg']}\n"
-            elif message["name"] == "assistant":
-                prompt += f"ASSISTANT: {message['msg']}<|endoftext|>\n"
+def multi_turn(message_log):
+    prompt = ""
 
-        prompt += "ASSISTANT: "
+    for message in message_log:
+        if message["name"] == "user":
+            prompt += f"USER: {message['msg']}\n"
+        elif message["name"] == "assistant":
+            prompt += f"ASSISTANT: {message['msg']}\n"
 
-        return prompt
+    prompt += "ASSISTANT: "
+
+    return prompt

@@ -1,14 +1,14 @@
 import json
+
 import requests
 
 
 class RequestHandler:
-    def __init__(self):
+    def __init__(self, model_manager):
         self.request_header = { 'Content-Type': 'application/json' }
-    
-    def set_ip_and_port(self, ip, port):
-        self.server_url = f"http://{ip}:{port}/completion"
 
+        self.server_url = model_manager.get_server_url()
+    
     def send_request(self, prompt, params, stream):
         data = json.dumps({
             'prompt': prompt,
@@ -17,12 +17,14 @@ class RequestHandler:
             'top_p': params['top_p'],
             'repetition_penalty': params['repetition_penalty'],
             'n_predict': params['n_predict'],
-            'stream': stream,
+            'stream': stream
             })
+        
+        print(prompt)
 
         response = requests.post(
             self.server_url,
-            self.request_header,
+            headers=self.request_header,
             data=data,
             stream=stream
             )

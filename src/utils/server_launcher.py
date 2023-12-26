@@ -1,7 +1,13 @@
 import subprocess
 
 
-def start_server(server_app_path, gguf_path, ctx_size, port, ngl):
+def start_server(model_manager):
+    server_app_path = model_manager.server_app_path
+    gguf_path = model_manager.gguf_path + model_manager.get_file_name()
+    ctx_size = model_manager.active_model_info["ctx_size"]
+    port = model_manager.active_model_info["port"]
+    ngl = model_manager.n_gpu_layer
+
     cmd = [
         server_app_path,
         "-m", gguf_path,

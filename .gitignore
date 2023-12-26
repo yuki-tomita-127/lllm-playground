@@ -162,3 +162,5 @@ cython_debug/
 # Custom
 .vscode
 data/model_info.json
+*.jpeg
+data/log/*.txt
