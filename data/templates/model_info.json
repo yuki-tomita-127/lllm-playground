@@ -1,0 +1,38 @@
+{
+    "default_server_app_path": "/foo/bar/server.exe",
+    "default_gguf_dir_path": "/gguf_models/",
+    "local_models":[
+        {
+            "id": "0",
+            "model_name": "airoboros-l2-13b-3.1.1",
+            "repo_id": "TheBloke/Airoboros-L2-13B-3.1.1-GGUF",
+            "original_repo_id": "jondurbin/airoboros-l2-13b-3.1.1",
+            "quantize": [
+                "Q5_K_M",
+                "Q8_0"
+            ],
+            "file_name": [
+                "airoboros-l2-13b-3.1.1.Q5_K_M.gguf",
+                "airoboros-l2-13b-3.1.1.Q8_0.gguf"
+            ],
+            "max_ngl": 41,
+            "language": "en",
+            "task": "multi-task",
+            "mode": [
+                "Instruction(Single Turn)"
+            ],
+            "prompt_format": "airoboros",
+            "ip": "localhost",
+            "port": "8080",
+            "branch": "main",
+            "ctx_size": 2048,
+            "default_params": {
+                "temperature": 0.8,
+                "top_k": 40,
+                "top_p": 0.95,
+                "repetition_penalty": 1.1,
+                "n_predict": -1
+            }
+        }
+    ]
+}
