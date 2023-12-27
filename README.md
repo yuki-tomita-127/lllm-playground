@@ -7,4 +7,4 @@ I understand that there are already fantastic UIs like `text-generation-webui`, 
 - [ ] Implement a simple way to add a new LLM
 
 ## Libraries
-- streamlit==1.29.0
+- streamlit>=1.29.0

@@ -10,6 +10,10 @@ class RequestHandler:
         self.server_url = model_manager.get_server_url()
     
     def send_request(self, prompt, params, stream):
+        stop_token = []
+        if params.model_manager.active_model_info["stop_token"]:
+            stop_token = params.model_manager.active_model_info["stop_token"]
+
         data = json.dumps({
             'prompt': prompt,
             'temperature': params['temperature'],
@@ -17,10 +21,11 @@ class RequestHandler:
             'top_p': params['top_p'],
             'repetition_penalty': params['repetition_penalty'],
             'n_predict': params['n_predict'],
+            'stop': stop_token,
             'stream': stream
             })
         
-        print(prompt)
+        print(data)
 
         response = requests.post(
             self.server_url,

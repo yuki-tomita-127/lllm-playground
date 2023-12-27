@@ -183,7 +183,7 @@ if user_msg:
     
     st.session_state.chat_log.append({"name": "user", "msg": user_msg})
 
-    if st.session_state.selected_mode == "Instruction (Single-turn)":
+    if "Single-turn" in st.session_state.selected_mode:
         response = st.session_state.request_handler.send_request(
             convert_prompt(user_msg, st.session_state.model_manager.active_model_info, st.session_state.selected_mode),
             st.session_state,
