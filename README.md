@@ -8,3 +8,4 @@ I understand that there are already fantastic UIs like `text-generation-webui`, 
 
 ## Libraries
 - streamlit>=1.29.0
+- plyer>=2.1.0

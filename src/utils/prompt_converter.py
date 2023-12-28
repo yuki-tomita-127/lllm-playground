@@ -1,26 +1,33 @@
-import json
-
-import requests
-
-from utils.prompts.calm2 import Calm2
+from utils.prompts.vicuna import Vicuna
 from utils.prompts.alpaca import Alpaca
 from utils.prompts.alma import ALMA
 from utils.prompts.deepseek_coder import DeepseekCoder
 from utils.prompts.openchat3_5 import OpenChat3_5
 from utils.prompts.chatml import ChatML
+from utils.prompts.tulu import Tulu
+from utils.prompts.capybara import Capybara
+from utils.prompts.mistral import Mistral
 
 
 def convert_prompt(message, model_info, mode):
     prompt_template = model_info["prompt_format"]
-    
-    if prompt_template == "calm2":
+    if prompt_template == "Vicuna":
         if mode == "Instruction (Single-turn)":
-            prompt = Calm2.single_turn(message)
+            prompt = Vicuna.single_turn(message)
         else:
-            prompt = Calm2.multi_turn(message)
+            prompt = Vicuna.multi_turn(message)
+
+    elif prompt_template == "Calm2":
+        if mode == "Instruction (Single-turn)":
+            prompt = Vicuna.single_turn_without_system(message)
+        else:
+            prompt = Vicuna.multi_turn_without_system(message)
     
-    elif prompt_template == "alpaca(ja)":
-        prompt = Alpaca.single_turn_ja(message)
+    elif prompt_template.startswith("Alpaca"):
+        if "ja" in prompt_template:
+            prompt = Alpaca.single_turn_ja(message)
+        else:
+            prompt = Alpaca.single_turn_en(message)
 
     elif prompt_template == "ALMA":
         if mode == "Ja to En (Single-turn)":
@@ -55,70 +62,18 @@ def convert_prompt(message, model_info, mode):
         else:
             prompt = ChatML.multi_turn(message)
     
+    elif prompt_template == "Tulu":
+        prompt = Tulu.single_turn(message)
+    
+    elif prompt_template == "Capybara":
+        prompt = Capybara.single_turn(message)
+    
+    elif prompt_template == "Mistral":
+        prompt = Mistral.single_turn(message)
+    
     # NOTE: Used to check that prompts are being converted correctly. Will be deleted in the future.
     print(prompt)
     print("="*60)
     print()
 
     return prompt
-
-
-def to_swallow(user_msg):
-    if "|" in user_msg:
-        user_msg, input = user_msg.split("|", 1)
-    else:
-        input = None
-
-    PROMPT_DICT = {
-        "prompt_input": (
-            "以下に、あるタスクを説明する指示があり、それに付随する入力が更なる文脈を提供しています。"
-            "リクエストを適切に完了するための回答を記述してください。\n\n"
-            "### 指示:\n{user_msg}\n\n### 入力:\n{input}\n\n### 応答:"
-
-        ),
-        "prompt_no_input": (
-            "以下に、あるタスクを説明する指示があります。"
-            "リクエストを適切に完了するための回答を記述してください。\n\n"
-            "### 指示:\n{user_msg}\n\n### 応答:"
-        ),
-    }
-
-    if input:
-        # Use the 'prompt_input' template when additional input is provided
-        return PROMPT_DICT["prompt_input"].format(user_msg=user_msg, input=input)
-    else:
-        # Use the 'prompt_no_input' template when no additional input is provided
-        return PROMPT_DICT["prompt_no_input"].format(user_msg=user_msg)
-
-def to_stablelm_gamma(user_msg):
-    if "|" in user_msg:
-        user_msg, input = user_msg.split("|", 1)
-    else:
-        input = None
-
-    sep="\n\n### "
-
-    sys_msg = "以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。"
-    p = sys_msg
-    roles = ["指示", "応答"]
-    msgs = [": \n" + user_msg, ": \n"]
-    if input:
-        roles.insert(1, "入力")
-        msgs.insert(1, ": \n" + input)
-    for role, msg in zip(roles, msgs):
-        p += sep + role + msg
-    return p
-
-def translate(prompt):
-    prompt = f"Translate this from Japanese to English:\nJapanese: {prompt}\nEnglish:"
-    req_data = json.dumps({
-        'prompt': prompt,
-        'n_predict': 128,
-        'temperature': 0.7,
-        'repeat_penalty': 1.1
-        })
-    
-    response = requests.post("http://localhost:8079/completion", headers={ 'Content-Type': 'application/json' }, data=req_data)
-
-    j = response.json()
-    return j["content"]

@@ -1,15 +1,13 @@
 import json
 import os
 
+from plyer import notification
 import streamlit as st
 
 from utils.model_manager import ModelManager
 from utils.prompt_converter import convert_prompt
 from utils.request_handler import RequestHandler
 from utils.server_launcher import start_server
-
-
-st.title("LLLM Playground")
 
 
 # Session State Initialization
@@ -52,6 +50,9 @@ if "repetition_penalty" not in st.session_state:
     st.session_state.repetition_penalty = 1.1
 if "n_predict" not in st.session_state:
     st.session_state.n_predict = -1
+
+if "use_notification" not in st.session_state:
+    st.session_state.use_notification = True
 
 
 def set_model():
@@ -165,6 +166,11 @@ with st.sidebar:
             step=1,
             key="n_predict"
         )
+    
+    notify_radio = st.toggle(
+        label="Notification",
+        key="use_notification"
+    )
 
 
 # Chat Area
@@ -207,3 +213,6 @@ if user_msg:
                 assistant_response_area.write(assistant_msg)
 
     st.session_state.chat_log.append({"name": "assistant", "msg": assistant_msg})
+
+    if st.session_state.use_notification:
+        notification.notify(title='Streamlit', message='\nInference has been completed!', timeout=4)
