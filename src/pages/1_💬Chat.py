@@ -37,7 +37,7 @@ if "chat_log" not in st.session_state:
 if "user_avatar" not in st.session_state:
     st.session_state.user_avatar = "🦖"
 if "assistant_avatar" not in st.session_state:
-    avatar_file_path = "images/assistant2.jpeg"
+    avatar_file_path = "images/assistant.jpeg"
     st.session_state.assistant_avatar = avatar_file_path if os.path.exists(avatar_file_path) else None
 
 if "temperature" not in st.session_state:
