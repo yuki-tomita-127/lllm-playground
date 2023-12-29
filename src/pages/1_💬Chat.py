@@ -11,6 +11,7 @@ from utils.server_launcher import start_server
 
 
 # Session State Initialization
+# TODO: Too many items in session_state, need to modify to manage using Entity
 if "model_manager" not in st.session_state:
     st.session_state.model_manager = ModelManager()
 if "request_handler" not in st.session_state:
