@@ -8,6 +8,7 @@ from utils.model_manager import ModelManager
 from utils.prompt_converter import convert_prompt
 from utils.request_handler import RequestHandler
 from utils.server_launcher import start_server
+from utils.logger import Logger
 
 
 # Session State Initialization
@@ -55,6 +56,9 @@ if "n_predict" not in st.session_state:
 if "use_notification" not in st.session_state:
     st.session_state.use_notification = True
 
+if "logger" not in st.session_state:
+    st.session_state.logger = Logger()
+
 
 def set_model():
     st.session_state.model_manager.change_active_model(st.session_state.selected_model)
@@ -80,6 +84,21 @@ def set_mode():
 def launch_server():
     start_server(st.session_state.model_manager)
 
+def start_new_research():
+    # raise NotImplementedError("Sorry. Comming Soon!")
+    print(st.session_state.chat_log)
+
+def set_research_log():
+    raise NotImplementedError("Sorry. Comming Soon!")
+
+def reload_chat_area():
+    for chat in st.session_state.chat_log:
+        if chat["name"] == "user":
+            with st.chat_message("user", avatar=st.session_state.user_avatar):
+                st.write(chat["msg"])
+        else:
+            with st.chat_message("assistant", avatar=st.session_state.assistant_avatar):
+                st.write(chat["msg"])
 
 # Sidebar
 with st.sidebar:
@@ -167,14 +186,44 @@ with st.sidebar:
             step=1,
             key="n_predict"
         )
+
+    with st.container(border=True):
+        st.button(
+            label="New Research!",
+            on_click=start_new_research
+        )
+
+        st.write("---")
+
+        research_log = st.selectbox(
+            label="Log",
+            options=["1.chat_test_hermes"],
+            key="selected_research_log",
+            on_change=set_research_log
+        )
     
     notify_radio = st.toggle(
         label="Notification",
         key="use_notification"
     )
 
+    reload_chat_area_button = st.button(
+        label="Reload ChatArea!",
+        on_click=reload_chat_area
+    )
+
 
 # Chat Area
+with st.expander("Regenerate"):
+    st.selectbox(
+        label="Start With...",
+        options=[log["msg"][:50] for log in st.session_state.chat_log]
+    )
+
+    st.text_input(label="Message")
+
+    st.button(label="Regenerate")
+
 user_msg = st.chat_input("message to chatbot...")
 if user_msg:
     for chat in st.session_state.chat_log:
@@ -217,3 +266,5 @@ if user_msg:
 
     if st.session_state.use_notification:
         notification.notify(title='Streamlit', message='\nInference has been completed!', timeout=4)
+    
+    # st.session_state.logger.save_log(st.session_state.chat_log, st.session_state.temperature, st.session_state.top_k, st.session_state.top_p, st.session_state.repetition_penalty, st.session_state.n_predict)

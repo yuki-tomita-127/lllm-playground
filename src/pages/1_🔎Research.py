@@ -1,7 +1,8 @@
 import streamlit as st
 
 
-st.session_state.register_result = ""
+if "register_result" not in st.session_state:
+    st.session_state.register_result = ""
 
 
 def check_inputs(data):
@@ -15,7 +16,7 @@ def check_inputs(data):
         return False
     elif not data["file_name"]:
         return False
-    elif not data["mode"]:
+    elif not data["mode"]["existing_mode"] and not data["mode"]["new_mode"]:
         return False
     elif not data["prompt_format"]:
         return False
@@ -26,7 +27,7 @@ def check_inputs(data):
     
     return True
 
-def register_data(model_name, repo_id, original_repo_id, quantize, file_name, max_ngl, language, mode, prompt_format, ip, port, branch, ctx_size, default_params, stop_token):
+def register_data(model_name, repo_id, original_repo_id, quantize, file_name, max_ngl, language, mode, prompt_format, ip, port, branch, ctx_size, default_params, stop_token, note):
     data = {
         "model_name": model_name,
         "repo_id": repo_id,
@@ -42,14 +43,14 @@ def register_data(model_name, repo_id, original_repo_id, quantize, file_name, ma
         "branch": branch,
         "ctx_size": ctx_size,
         "default_params": {
-            "temperature": temperature,
-            "top_k": top_k,
-            "top_p": top_p,
-            "repetition_penalty": repetition_penalty,
-            "n_predict": n_predict
+            "temperature": default_params["temperature"],
+            "top_k": default_params["top_k"],
+            "top_p": default_params["top_p"],
+            "repetition_penalty": default_params["repetition_penalty"],
+            "n_predict": default_params["n_predict"]
             },
         "stop_token": stop_token,
-        "note": ""
+        "note": note
         }
     
     if check_inputs(data):
@@ -58,8 +59,15 @@ def register_data(model_name, repo_id, original_repo_id, quantize, file_name, ma
             file_name_list.append(data["file_name"].replace("(Q)", q))
         data["file_name"] = file_name_list
         
-        if not isinstance(data["mode"], list):
-            data["mode"] = [data["mode"]]
+        if not data["mode"]["existing_mode"]:
+            data["mode"] = data["mode"]["new_mode"].split(",")
+        elif data["mode"]["existing_mode"] and not data["mode"]["new_mode"]:
+            data["mode"] = data["mode"]["existing_mode"]
+        else:
+            new_mode = data["mode"]["new_mode"].split(",")
+            data["mode"] = data["mode"]["existing_mode"]
+            for m in new_mode:
+                data["mode"].append(m)
         
         if not data["stop_token"]:
             data["stop_token"] = []
@@ -121,17 +129,18 @@ with model_info:
                 horizontal=True
                 )
             
-            if is_new_mode == "No":
-                mode = st.multiselect(
-                    label="Mode",
-                    options=st.session_state.setting_file_loader.get_mode_list()
-                    )
+            mode = st.multiselect(
+                label="Mode",
+                options=st.session_state.setting_file_loader.get_mode_list()
+                )
             
-            else:
-                mode = st.text_input(
+            if is_new_mode == "Yes":
+                new_mode = st.text_input(
                     label="Mode(If Not Chat, Contain '(Single-turn)')",
                     placeholder="Instruction (Single-turn)"
                     )
+            else:
+                new_mode = ""
 
         with st.container(border=True):
             is_new_prompt_format = st.radio(
@@ -222,6 +231,11 @@ with model_info:
             placeholder="A,B,C"
             )
         
+        note = st.text_input(
+            label="Note",
+            value="max_position_embeddings: "
+            )
+        
         register_button = st.button(
             label="Register",
             on_click=register_data,
@@ -233,7 +247,10 @@ with model_info:
                 "file_name": file_name,
                 "max_ngl": max_ngl,
                 "language": language,
-                "mode": mode,
+                "mode": {
+                    "existing_mode": mode,
+                    "new_mode": new_mode
+                },
                 "prompt_format": prompt_format,
                 "ip": ip,
                 "port": port,
@@ -246,7 +263,8 @@ with model_info:
                     "repetition_penalty": repetition_penalty,
                     "n_predict": n_predict
                 },
-                "stop_token": stop_token
+                "stop_token": stop_token,
+                "note": note
             }
         )
 

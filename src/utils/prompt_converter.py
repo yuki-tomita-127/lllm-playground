@@ -7,6 +7,7 @@ from utils.prompts.chatml import ChatML
 from utils.prompts.tulu import Tulu
 from utils.prompts.capybara import Capybara
 from utils.prompts.mistral import Mistral
+from utils.prompts.falcon import Falcon
 
 
 def convert_prompt(message, model_info, mode):
@@ -23,8 +24,8 @@ def convert_prompt(message, model_info, mode):
         else:
             prompt = Vicuna.multi_turn_without_system(message)
     
-    elif prompt_template.startswith("Alpaca"):
-        if "ja" in prompt_template:
+    elif prompt_template == "Alpaca":
+        if model_info["language"] == "ja":
             prompt = Alpaca.single_turn_ja(message)
         else:
             prompt = Alpaca.single_turn_en(message)
@@ -70,6 +71,12 @@ def convert_prompt(message, model_info, mode):
     
     elif prompt_template == "Mistral":
         prompt = Mistral.single_turn(message)
+    
+    elif prompt_template == "Falcon":
+        if mode == "Instruction (Single-turn)":
+            prompt = Falcon.single_turn(message)
+        else:
+            prompt = Falcon.multi_turn(message)
     
     # NOTE: Used to check that prompts are being converted correctly. Will be deleted in the future.
     print(prompt)
